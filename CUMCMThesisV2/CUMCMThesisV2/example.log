@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015/Debian) (preloaded format=xelatex 2018.9.15)  15 SEP 2018 22:39
+This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015/Debian) (preloaded format=xelatex 2018.9.15)  16 SEP 2018 10:31
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1876,35 +1876,109 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                removed on input line 236.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 237--245
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                \kern 2.00876pt
+(hyperref)                removed on input line 237.
 
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                \kern 2.00876pt
+(hyperref)                removed on input line 237.
+
+
+Overfull \hbox (52.2623pt too wide) in paragraph at lines 238--243
+[][] 
  []
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                \kern 2.00876pt
-(hyperref)                removed on input line 245.
+(hyperref)                removed on input line 244.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                \kern 2.00876pt
-(hyperref)                removed on input line 245.
+(hyperref)                removed on input line 244.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 260.
-[11]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 260.
+*************************************************
+* fontspec warning: "script-not-exist"
+* 
+* Font 'FandolFang-Regular' does not contain script 'CJK'.
+*************************************************
+\g__fontspec_family_FandolFang-Regular_int=\count270
+LaTeX Font Info:    Try loading font information for EU1+lmtt on input line 245
+.
+(/usr/share/texlive/texmf-dist/tex/latex/euenc/eu1lmtt.fd
+File: eu1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
+.................................................
+. fontspec info: "defining-font"
+. 
+. Font family 'FandolFang-Regular(0)' created for font 'FandolFang-Regular'
+. with options [Script={CJK},Extension={.otf},AutoFakeBold={4}].
+. 
+. This font family consists of the following NFSS series/shapes:
+. - 'normal' (m/n) with NFSS spec.: <->"[FandolFang-Regular.otf]/OT:"
+. - 'small caps'  (m/sc) with NFSS spec.: - 'bold' (bx/n) with NFSS spec.:
+. <->"[FandolFang-Regular.otf]/OT:embolden=4;"
+. - 'bold small caps'  (bx/sc) with NFSS spec.: 
+.................................................
+ [11]
+Overfull \hbox (72.24461pt too wide) in paragraph at lines 442--442
+[]       \EU1/FandolFang-Regular(0)/m/n/12.05 输 出 ： 一 个 大 小 和 \EU1/lmtt/m/n/12.
+05 t \EU1/FandolFang-Regular(0)/m/n/12.05 相 同 的 一 维 \EU1/lmtt/m/n/12.05 torch \
+EU1/FandolFang-Regular(0)/m/n/12.05 数 组 ， 代 表 在 等 效 位 移 为 \EU1/lmtt/m/n/12.05 x
+ \EU1/FandolFang-Regular(0)/m/n/12.05 ， 所 有 对 应 时 间 点 预 测 的 温 度 [] 
+ []
+
+[12] [13]
+Overfull \hbox (78.45059pt too wide) in paragraph at lines 442--442
+[]    \EU1/lmtt/m/n/12.05 sheet = xlrd.open_workbook('CUMCM-2018-Problem-A-Chin
+ese-Appendix.xlsx').sheets()[1][] 
+ []
+
+
+Overfull \hbox (206.53409pt too wide) in paragraph at lines 442--442
+[]        \EU1/lmtt/m/n/12.05 k1,k2,k3,k4 = 1.9849915274751876e-07,2.0439730416
+52856e-07,3.513725392209836e-07,2.361075976051944e-05[] 
+ []
+
+
+Overfull \hbox (37.0787pt too wide) in paragraph at lines 442--442
+[]    \EU1/lmtt/m/n/12.05 #  \EU1/FandolFang-Regular(0)/m/n/12.05 如 果 用 矩 阵 运 算
+ 一 步 到 位 地 计 算 温 度 分 布 ， 程 序 内 存 崩 溃 ， 所 以 还 是 采 用 一 个 \EU1/lmtt/m/n/12.05 for 
+\EU1/FandolFang-Regular(0)/m/n/12.05 循 环 [] 
+ []
+
+[14] [15]
+Overfull \hbox (157.05681pt too wide) in paragraph at lines 442--442
+[]        \EU1/lmtt/m/n/12.05 zs[:,int(i/stepx)] = np.array(sheet.col_values(i+
+1))[np.arange(1,lent+1,stept).astype(np.int)][] 
+ []
+
+
+Overfull \hbox (10.18713pt too wide) in paragraph at lines 442--442
+[]       \EU1/FandolFang-Regular(0)/m/n/12.05 计 算 第 二 层 厚 度 为 \EU1/lmtt/m/n/12.
+05 thickness \EU1/FandolFang-Regular(0)/m/n/12.05 ， 最 高 温 度 为 \EU1/lmtt/m/n/12.
+05 T2 \EU1/FandolFang-Regular(0)/m/n/12.05 时 ， 皮 肤 表 面 的 温 度 时 间 变 化 关 系 。 [] 
+ []
+
+[16]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 444.
+ [17]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 444.
  (./example.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 260.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 260.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 260.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 444.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 444.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 444.
  ) 
 Here is how much of TeX's memory you used:
- 30569 strings out of 493638
- 579773 string characters out of 6146796
+ 30625 strings out of 493638
+ 581194 string characters out of 6146796
  571406 words of memory out of 5000000
- 33610 multiletter control sequences out of 15000+600000
- 19545 words of font info for 111 fonts, out of 8000000 for 9000
+ 33657 multiletter control sequences out of 15000+600000
+ 19569 words of font info for 114 fonts, out of 8000000 for 9000
  1328 hyphenation exceptions out of 8191
- 72i,13n,79p,10498b,515s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 72i,13n,79p,10498b,829s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on example.pdf (13 pages).
+Output written on example.pdf (19 pages).

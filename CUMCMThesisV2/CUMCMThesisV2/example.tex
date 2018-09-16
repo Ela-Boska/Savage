@@ -218,7 +218,7 @@
     a = \sum_{i=0}^5 d_i
 \end{equation}
 \begin{equation}
-    \alpha = 1-d_5/a
+    \alpha = 1-d_0/a
 \end{equation}
 \indent 经过实验，我们找到了一个合适的$d_2$的值，$d_2=9.51529$mm，在这种情况下，皮肤的最高温度为44.0001度,超过44度的时间是296s。这是它的温度时间曲线（其中蓝色的线标志着温度超过44度）：
 \begin{flushleft}
@@ -234,27 +234,211 @@
 \end{equation}
 
 \section{python代码}
-语言：\\
-python2.7
-模块：\\
-torch\\ 
-numpy\\
-matplotlib\\
-xlrd\\
-xlsxwriter\\
-\subsection{}
+\subsection{编程环境}
+\begin{tabular}{ll}
+    编程语言：&python2.7\\
+    模块：& torch numpy matplotlib xlrd xlsxwriter\\
+    编程思想：& 并行化计算设计思想，通过矩阵运算代替效率低下的for循环，加快运行速度
+\end{tabular}
 
-    
+\subsection{函数文件}
+\begin{verbatim}
+# -*- coding: utf-8 -*-
+import numpy as np 
+import torch 
+import matplotlib.pyplot as plt
+import math
+import xlsxwriter
+import xlrd
+from mpl_toolkits.mplot3d import axes3d
 
-    
-    
-     
+pi = math.pi
+d5= 13.815158896  
+Alpha= 0.75 
+d0 = 11.84512721225
+# 根据问题一计算出d_5和d_0后，记录在文件中，方便问题二和问题三的函数设计
+
+def solution(x,a,T1,T2,alpha,t):                      # 计算 u(x,t)
+    """
+    用于计算u(x,t)的函数。
+    输入：x -一个float数或可以转化成float数的变量，代表等效位移
+          t -一个torch一维数组，代表测量温度的时间点
+          T1 -一个数，代表u(0,t)处的温度
+          T2 -一个数，代表u(a,t)处的温度
+          alpha -一个0-1之间的数，计算公式：1-d_0/a
+      输出：一个大小和t相同的一维torch数组，代表在等效位移为x，所有对应时间点预测的温度
+    """
+    temp = torch.arange(1,1001).float()     #创造一个1-1000的递增数列      
+    mask1 = 2*(T2-T1)/pi/temp           #计算求和数列的系数中的分数部分
+    mask2 = (temp*pi*alpha).cos()       #计算求和数列的系数中的cos部分
+    mask3 = torch.sin(temp*pi*x/a).float()  #计算求和项中的sin部分
+    temp2 = t.view(-1,1).float()        #矩阵变形
+    temp3 = -temp2 * (temp**2).view(1,-1) * pi**2/a**2 
+    mask4 = torch.exp(temp3)    #计算求和项的时间部分
+    mask_1 = mask1 * mask2 *mask3
+    mask_1 = mask_1.view(1,-1).repeat(len(t),1)
+    ans = mask_1*mask4
+    ans = ans.sum(-1)
+    ans = ans
+    ans += (T2-T1)*x/a +T1
+    return ans
+
+def plot(alpha):
+    """
+    用于画图、计算误差来比较模型预测值和实际值的函数
+    输入： alpha - = 1-d_0/a,这是模型的一个参数，这个函数旨在通过误差比较
+    寻找到一个合适的alpha值
+    动作： 画出预测值和实际值的散点对比图
+           显示预测值和实际值的误差绝对值的平均
+    """
+    ratio = 0.3
+    sheet=xlrd.open_workbook('CUMCM-2018-Problem-A-Chinese-Appendix.xlsx')
+    sheet=sheet.sheets()[0]
+    X = sheet.col_values(0)[2:int(ratio*(len(sheet.col_values(0))-2))+2]
+    Y = sheet.col_values(1)[2:int(ratio*(len(sheet.col_values(0))-2))+2]
+    X = torch.tensor(X,dtype =torch.float)
+    Y = torch.tensor(Y,dtype =torch.float)
+    a = 21.720222740795744/(alpha-(48.08-37)/(75-37))
+    x = (48.08-37)/(75-37) * a
+    print 'a=',a,'x=',x, 'alpha=',alpha
+    Predict = solution(x,a,37,75,alpha,X)
+    def Mean_error(tensor1,tensor2):    #计算误差绝对值的平均值的函数
+        return torch.mean((tensor1-tensor2).abs())
+    print 'Mean Error =',Mean_error(Predict,Y)
+
+    plt.plot(X.numpy(),Predict.numpy(),'+',label='Predicted')
+    # .numpy()是把torch张量转化为numpy张量的函数，画图需要numpy张量
+    plt.plot(X.numpy(),Y.numpy(),"x",label='Ground Turth')
+    plt.xlabel('Time/(s)')
+    plt.ylabel('Temperature/(Degree)')
+    plt.legend()
+    plt.show()
+
+def Distribution():
+    """
+    之前的实验中我们得到 a= 47.380508849 d_5= 13.815158896 alpha= 0.75
+    第1、2、3、4层的等效位移的范围是 [13.815158896,35.53538163675]
+    我们在这个范围内均匀设置500个坐标点用于计算温度时间变化曲线
+    """
+    import time
+    t1 = time.time()
+    alpha = 0.75
+    sheet = xlrd.open_workbook('CUMCM-2018-Problem-A-Chinese-Appendix.xlsx').sheets()[1]
+    ts = sheet.col_values(0)[2:]
+    # 读取测量温度的时间点数据
+    thickness = 0.6+6+3.6+5
+    ts = torch.tensor(ts)
+    xs = torch.linspace(0,thickness,500)
+    # 设置500个预测温度的位移点
+    def transfer(x):
+        x = x
+        k1,k2,k3,k4 = 1.9849915274751876e-07,2.043973041652856e-07,3.513725392209836e-07,2.361075976051944e-05
+        c1,c2,c3,c4=1000*k1**0.5,1000*k2**0.5,1000*k3**0.5,1000*k4**0.5
+        thick0 = 47.380508849*0.75-21.720222740795744
+        thick1 = 5/c4 +thick0
+        thick2 = thick1+3.6/c3
+        thick3 = thick2+6/c2
+        mask1 = ((0<=x) * (x<=5)).float()   # 计算分类矩阵
+        mask2 = ((5<x) * (x<=8.6)).float()
+        mask3 = ((8.6<x) * (x<=14.6)).float()
+        mask4 = ((14.6<x) * (x<=15.2)).float()
+        ans1 = mask1*(x/c4+thick0)
+        ans2 = mask2*((x-5)/c3+thick1)
+        ans3 = mask3*((x-8.6)/c2+thick2)
+        ans4 = mask4*((x-14.6)/c1+thick3)
+        return ans1+ans2+ans3+ans4
+    # 设计把实际位移转化成等效位移的函数
+    ans = torch.zeros((len(ts)+1,501))
+    ans[0,1:] = xs # 第一行用位移点填满
+    ans[1:,0] = ts # 第一列用时间点填满
+    Xs = transfer(xs)
+    for i in range(500):
+        x = Xs[i].item()
+        ans[1:,i+1] = solution(x,47.380508849,37,75,0.75,ts)
+    # 如果用矩阵运算一步到位地计算温度分布，程序内存崩溃，所以还是采用一个for循环
+    xlsx = xlsxwriter.Workbook('Problem1.xlsx')
+    worksheet = xlsx.add_worksheet()
+    for i in range(ans.size(0)):
+        for j in range(ans.size(1)):
+            worksheet.write(i,j,float(ans[i,j]))
+    worksheet.write(0,0,'Time(s)')
+    # 第1行第1列写上时间（s）
+    xlsx.close()
+    t2 = time.time()
+    print 'Finished in {} seconds'.format(t2-t1)
 
 
+def Plot3d(rstride=100,cstride=1,ratio=0.4,stept = 30,stepx = 10):
+    """
+    用来读取生成的Problem1.xlsx文件并画出温度-时间-位移的三维图像的函数
+    输入：    rstride - 画图时，时间轴上，每隔rstride个数据点，在u(x,t)
+                         曲面上画一条垂直于时间轴的线。默认为100，这时
+                         候不画线，因为数据点小于100个。
+              cstride - 类似于rstrice，但是是位移轴的参数，默认为1，会
+                        在预测的u(x,t)曲面上画出密集的垂直于位移轴的图线
+              ratio   - 对时间轴取样时，只去前面占ratio的部分，因为在后
+                        期温度已经达到平衡，变化很小。默认为0.4，只显示
+                        前40%的温度变化情况
+              stept   - 对时间数据取样的间隔，最好为整数
+              stepx   - 对位移数据取样的间隔，最好为整数
+                        
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    # 设置画布
+    sheet = xlrd.open_workbook('Problem1.xlsx').sheets()[0]
+    ts = np.array(sheet.col_values(0)[1:int(ratio*(sheet.nrows-1))+1])
+    xs = np.array(sheet.row_values(0)[1:])
+    # 读取excel文件中的数据并转化称numpy矩阵
+    lent = len(ts)
+    lenx = len(xs)
+    ts = ts[np.arange(0,lent,stept).astype(np.int)]
+    xs = xs[np.arange(0,lenx,stepx).astype(np.int)]
+    # 采样读取所有的位移、时间数据
+    ts = np.array(ts).reshape(-1,1).repeat(len(xs),1)
+    xs = np.array(xs).reshape(1,-1).repeat(len(ts),0)
+    # 把时间、位移矩阵拓展成2维
+    zs = np.zeros_like(ts)
+    for i in np.arange(0,lenx,stepx):
+        zs[:,int(i/stepx)] = np.array(sheet.col_values(i+1))[np.arange(1,lent+1,stept).astype(np.int)]
+    # 采样读取所有位移、时间对应的温度数据
+    ax.plot_wireframe(ts,xs,zs,rstride=rstride,cstride=cstride)
+    ax.set_xlabel('time(s)')
+    ax.set_ylabel('displace(mm)')
+    ax.set_zlabel('Temperature(degree)')
+    plt.show()
 
 
+def Problem2(thickness,T2,time):        
+    """
+      计算第二层厚度为thickness，最高温度为T2时，皮肤表面的温度时间变化关系。
+    动作： 求出最高温度
+           求出温度超过44度的时间
+           画出皮肤表面温度时间变化关系图线
+    """
+    total_thickness = d0 + d5 + 1.3467032917824031 + \
+        6.0732141078674315 + 5.5e-3/2.361075976051944e-05**0.5 + \ 
+        thickness*1e-3/2.043973041652856e-07**0.5
+    # total_thinckness 是总的等效厚度 d_0+...+d_5
+    alpha = 1-d0/total_thickness
+    t = torch.arange(time+1).float() # 设置时间断点
+    ans = solution(d5,total_thickness,37,T2,alpha,t)  # 计算u(x,t)
+    max_temp = max(ans)                             # 计算温度最大值
+    print 'Max temperature is', max_temp            
+    i = 0
+    if max_temp>44:
+        while True:
+            if ans[i] >44.0:                        # 寻找达到44度的位置
+                break
+            i += 1
+        print 'temperature reaches 44 at {} s'.format(i)
+        print 'temperature is higher than 44 for {} s'.format(time-i)
+    plt.plot(i*np.ones(100),np.linspace(37,44.3,100))
+    plt.plot(t.numpy(),ans.numpy())                 # 画图
+    plt.xlabel('Time/(s)')
+    plt.ylabel('Temperature/(Degree)')
+    plt.show()
 
+\end{verbatim}
 
-
-
-\end{document} 
+\end{document}
