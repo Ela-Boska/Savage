@@ -195,7 +195,18 @@
      \end{array}  
     \right.
     \end{equation}
-    \indent  我们计算了这种情况下，在$x=d_0$，也就是皮肤表面的温度时间曲线，所有时刻下我们的函数的预测值和温度实际值的误差的绝对值的平均值，为0.0042度(这更有可能使由于测量温度时的精度限制导致的)，这个函数很好地模拟了温度的分布。下面是我们的函数预测值和实际温度的对比图。
+    \indent  我们计算了这种情况下，在$x=d_0$，也就是皮肤表面的温度时间曲线。为了分析和实际值的差距，我们计算了以下两个量（以摄氏度为单位）：\\
+    \begin{description}
+        \item[相关系数] 公式如下：
+        \begin{equation}
+            cor(x,y) = \frac{\sum_{i=1}^N(x_i-\hat{x})(y_i-\hat{y})}{\sqrt{\sum_{i=1}^N(x_i-\hat{x})^2  \sum_{i=1}^N(y_i-\hat{y})^2}}
+        \end{equation}
+        \item[误差平方的平均的开根号] 公式如下：
+        \begin{equation}
+            \Delta(x,y) = \left(\frac{1}{N} \sum_{i=1}^N(x_i-y_i)^2 \right)^\frac{1}{2} 
+        \end{equation} 
+    \end{description}
+    \indent 这个函数很好地模拟了温度的分布，它的预测值和实际值的相关系数为0.999999361557，误差平方的平均的开根号为0.00576161546633。下面是我们的函数预测值和实际温度的对比图。
     \begin{flushleft}
         \includegraphics[scale = 1]{Problem1.png}
     \end{flushleft}
@@ -232,8 +243,8 @@
 \begin{equation}
     \includegraphics[scale=1]{Problem3}
 \end{equation}
-
-\section{python代码}
+\newpage
+\section{附录}
 \subsection{编程环境}
 \begin{tabular}{ll}
     编程语言：&python2.7\\
@@ -289,7 +300,7 @@ def plot(alpha):
     输入： alpha - = 1-d_0/a,这是模型的一个参数，这个函数旨在通过误差比较
     寻找到一个合适的alpha值
     动作： 画出预测值和实际值的散点对比图
-           显示预测值和实际值的误差绝对值的平均
+           显示预测值和实际值的误差的标准差
     """
     ratio = 0.3
     sheet=xlrd.open_workbook('CUMCM-2018-Problem-A-Chinese-Appendix.xlsx')
@@ -302,9 +313,16 @@ def plot(alpha):
     x = (48.08-37)/(75-37) * a
     print 'a=',a,'x=',x, 'alpha=',alpha
     Predict = solution(x,a,37,75,alpha,X)
-    def Mean_error(tensor1,tensor2):    #计算误差绝对值的平均值的函数
-        return torch.mean((tensor1-tensor2).abs())
+    def Silmilarity(tensor1,tensor2):   #计算相关系数的函数
+        mean1 = torch.mean(tensor1)
+        mean2 = torch.mean(tensor2)
+        ans1 = torch.sum((tensor1-mean1)*(tensor2-mean2))
+        ans2 = (torch.sum((tensor1-mean1)**2)*torch.sum((tensor2-mean2)**2))**0.5
+        return ans1.item()/ans2.item()
+    def Mean_error(tensor1,tensor2):    #计算误差平方的平均的开根号函数
+        return (torch.mean((tensor1-tensor2)**2)**0.5).item()
     print 'Mean Error =',Mean_error(Predict,Y)
+    print 'Similarity =',Silmilarity(Predict,Y)
 
     plt.plot(X.numpy(),Predict.numpy(),'+',label='Predicted')
     # .numpy()是把torch张量转化为numpy张量的函数，画图需要numpy张量
@@ -417,7 +435,7 @@ def Problem2(thickness,T2,time):
            画出皮肤表面温度时间变化关系图线
     """
     total_thickness = d0 + d5 + 1.3467032917824031 + \
-        6.0732141078674315 + 5.5e-3/2.361075976051944e-05**0.5 + \ 
+        6.0732141078674315 + 5.5e-3/2.361075976051944e-05**0.5 + \
         thickness*1e-3/2.043973041652856e-07**0.5
     # total_thinckness 是总的等效厚度 d_0+...+d_5
     alpha = 1-d0/total_thickness
@@ -440,5 +458,7 @@ def Problem2(thickness,T2,time):
     plt.show()
 
 \end{verbatim}
+\indent 如果直接复制pdf可能导致代码无法运行，这里只起到解释代码的作用。可运行的代码可访问github链接：\href{https://github.com/Ela-Boska/Savage.git}{https://github.com/Ela-Boska/Savage.git}中的P2.py文件\\
+在python交互窗口中输入 import P2 后，就可以使用其中的函数
 
 \end{document}

@@ -66,9 +66,16 @@ def plot(alpha):
     x = (48.08-37)/(75-37) * a
     print 'a=',a,'x=',x, 'alpha=',alpha
     Predict = solution(x,a,37,75,alpha,X)
+    def Silmilarity(tensor1,tensor2):
+        mean1 = torch.mean(tensor1)
+        mean2 = torch.mean(tensor2)
+        ans1 = torch.sum((tensor1-mean1)*(tensor2-mean2))
+        ans2 = (torch.sum((tensor1-mean1)**2)*torch.sum((tensor2-mean2)**2))**0.5
+        return ans1.item()/ans2.item()
     def Mean_error(tensor1,tensor2):
-        return torch.mean((tensor1-tensor2).abs())
+        return (torch.mean((tensor1-tensor2)**2)**0.5).item()
     print 'Mean Error =',Mean_error(Predict,Y)
+    print 'Similarity =',Silmilarity(Predict,Y)
 
     plt.plot(X.numpy(),Predict.numpy(),'+',label='Predicted')
     plt.plot(X.numpy(),Y.numpy(),"x",label='Ground Turth')
